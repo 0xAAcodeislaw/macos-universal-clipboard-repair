@@ -98,19 +98,25 @@ Build the app locally:
 open "build/Universal Clipboard Repair.app"
 ```
 
-Whether the app can bypass Gatekeeper on first launch depends on whether the release build has Apple Developer ID signing and notarization configured.
+## First launch and Gatekeeper override for end users
 
-When signing credentials are not configured, this repository still produces a transparent, testable unsigned app. If macOS says it cannot verify the developer, blocks the app, or suggests moving it to the Trash after download:
+When signing credentials are not configured, this repository still produces a transparent, testable unsigned app. If macOS says it cannot verify the developer, blocks the app, or suggests moving it to the Trash after download, follow these steps:
 
-1. Right-click the app, choose **Open**, then confirm **Open** again.
-2. If it is still blocked, open **System Settings → Privacy & Security** and choose **Open Anyway** beside the security notice.
-3. Only when you trust the download source, you can also remove the downloaded-file quarantine flag:
+1. Download the archive from a GitHub Release and unzip it. Do not run the app from the archive preview window.
+2. Double-click the app once so macOS records the blocked launch.
+3. Open **System Settings → Privacy & Security**, scroll to **Security**, click **Open Anyway**, and confirm **Open**. This button normally appears for a short time after you try to launch the app.
+4. Alternatively, right-click the app, choose **Open**, and confirm **Open** again.
+5. If **Open Anyway** is still not available, and you trust the download source, you can remove the quarantine flag for this file in Terminal. Adjust the path if the app is stored elsewhere:
 
    ```sh
-   xattr -dr com.apple.quarantine "/Applications/Universal Clipboard Repair.app"
+   xattr -dr com.apple.quarantine "$HOME/Downloads/Universal Clipboard Repair.app"
    ```
 
-For a true double-click launch without this prompt, the repository must publish a build signed with a Developer ID Application certificate and notarized by Apple. The workflow includes an opt-in signing, notarization, and stapling path; if it is not enabled, it does not pretend that the artifact is signed.
+   If the app has a different name or location, replace the final path with the actual path. This only removes the downloaded-file quarantine flag; it does not disable Gatekeeper for the whole Mac.
+
+After one successful approval, macOS will normally allow the same app to open by double-clicking it. Only override Gatekeeper for a copy whose source you trust and whose contents have not been altered.
+
+For a true double-click launch without any user-side override, the repository must publish a build signed with a Developer ID Application certificate and notarized by Apple. The workflow includes an opt-in signing, notarization, and stapling path; if it is not enabled, it does not pretend that the artifact is signed.
 
 ## GitHub Actions
 

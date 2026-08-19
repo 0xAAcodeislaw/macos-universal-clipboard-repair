@@ -123,19 +123,25 @@ open "build/Universal Clipboard Repair.app"
 APP_VERSION=1.0.0 ./build-app.sh
 ```
 
-生成的 App 是否可以绕过 Gatekeeper 直接打开，取决于发布构建是否配置了 Apple Developer ID 签名与公证。
+## 用户端首次打开与 Gatekeeper 放行
 
-当前仓库在没有签名凭据时仍会生成可审阅、可测试的未签名 App。首次从网络下载未签名版本时，如果 macOS 提示“无法验证开发者”、阻止打开，甚至建议“移到废纸篓”：
+当前仓库在没有签名凭据时仍会生成可审阅、可测试的未签名 App。首次从网络下载未签名版本时，如果 macOS 提示“无法验证开发者”、阻止打开，甚至建议“移到废纸篓”，请按以下步骤操作：
 
-1. 在 App 上右键，选择“打开”，再确认一次“打开”。
-2. 如果仍被拦截，打开“系统设置 → 隐私与安全性”，在安全性提示旁选择“仍要打开”。
-3. 仅在你确认下载来源可信时，也可以在终端执行：
+1. 从 GitHub Release 下载压缩包并解压，不要直接在压缩包预览窗口中运行。
+2. 先双击 App 一次，让 macOS 记录这次拦截。
+3. 打开 **系统设置 → 隐私与安全性**，滚动到“安全性”，点击 **仍要打开**，然后再次确认“打开”。这个按钮通常只会在刚刚尝试打开 App 后短时间出现。
+4. 也可以在 App 上右键，选择 **打开**，再确认一次 **打开**。
+5. 如果仍然没有“仍要打开”，并且你确认下载来源可信，可以在终端执行下面的命令。路径需要改成 App 的实际位置；如果 App 在“下载”文件夹中，可直接使用此示例：
 
    ```sh
-   xattr -dr com.apple.quarantine "/Applications/Universal Clipboard Repair.app"
+   xattr -dr com.apple.quarantine "$HOME/Downloads/Universal Clipboard Repair.app"
    ```
 
-要让普通用户下载后真正双击即开，需要在仓库的 GitHub Actions Secrets 中配置 Developer ID Application 证书和 Apple 公证凭据。工作流已经预留了自动签名、公证和 stapling 流程；未配置时不会伪装成已签名版本。
+   如果 App 名称或位置不同，请把命令最后的路径替换为实际路径。这个操作只移除当前文件的下载隔离标记，不会关闭整个 macOS 的 Gatekeeper。
+
+完成一次放行后，通常就可以直接双击打开该 App。只对你确认来源可靠、文件未被篡改的版本执行上述操作。
+
+要让普通用户下载后无需任何放行操作、真正双击即开，需要在仓库的 GitHub Actions Secrets 中配置 Developer ID Application 证书和 Apple 公证凭据。工作流已经预留了自动签名、公证和 stapling 流程；未配置时不会伪装成已签名版本。
 
 ## 使用 GitHub Actions 生成 App
 
