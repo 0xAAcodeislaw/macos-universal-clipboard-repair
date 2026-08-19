@@ -130,6 +130,24 @@ To build a downloadable app from GitHub:
 
 Pushing a version tag such as `v1.0.0` runs the same build and attaches the App archive to a GitHub Release automatically.
 
+### Script-only mode
+
+Every GitHub Actions build also creates a standalone script archive:
+
+```text
+Universal-Clipboard-Repair-Script-v*-macOS.zip
+```
+
+It does not require opening the GUI app. Unzip it and double-click `Fix-Universal-Clipboard.command`, or run it from Terminal:
+
+```sh
+zsh ./Fix-Universal-Clipboard.command
+```
+
+The script-only version handles Universal Clipboard / Handoff only: it resets `ClipboardSharingEnabled`, restarts `useractivityd`, `sharingd`, and `pboard`, waits about 8 seconds, and checks their state. It does not use `sudo`, sign out of iCloud, reset networking, modify Keychain data, or touch Continuity Camera.
+
+The script archive is uploaded alongside the App archive as both a GitHub Actions artifact and a GitHub Release asset.
+
 ### Enabling signing and notarization
 
 Maintainers can add these GitHub Actions Secrets in the repository settings:

@@ -154,6 +154,24 @@ APP_VERSION=1.0.0 ./build-app.sh
 
 推送版本标签（例如 `v1.0.0`）后，工作流会自动构建 App，并把压缩包附加到对应的 GitHub Release。
 
+### 纯脚本模式
+
+每次 GitHub Actions 构建还会生成一个独立的纯脚本压缩包：
+
+```text
+Universal-Clipboard-Repair-Script-v*-macOS.zip
+```
+
+它不需要打开 GUI App，解压后双击 `Fix-Universal-Clipboard.command` 即可运行，也可以在终端执行：
+
+```sh
+zsh ./Fix-Universal-Clipboard.command
+```
+
+纯脚本版只处理 Universal Clipboard / Handoff：重置 `ClipboardSharingEnabled`，重启 `useractivityd`、`sharingd`、`pboard`，等待约 8 秒并检查状态。它不使用 `sudo`，不退出 iCloud，不重置网络，不修改钥匙串，也不会处理连续互通摄像头。
+
+脚本压缩包会和 App 压缩包一起出现在 GitHub Actions artifact 和 GitHub Release 中。
+
 ### 启用签名与公证
 
 维护者可以在仓库设置中添加以下 Actions Secrets：

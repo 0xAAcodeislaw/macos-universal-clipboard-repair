@@ -71,6 +71,25 @@ jobs:
           path: Universal-Clipboard-Repair-v${{ steps.version.outputs.version }}-macOS.zip
           if-no-files-found: error
 
+      - name: Package script-only repair
+        env:
+          APP_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          script_stage="$RUNNER_TEMP/Universal-Clipboard-Repair-Script"
+          mkdir -p "$script_stage"
+          cp "Fix-Universal-Clipboard.command" "$script_stage/Fix-Universal-Clipboard.command"
+          cp "SCRIPT-README.md" "$script_stage/README.md"
+          cp "LICENSE" "$script_stage/LICENSE"
+          chmod +x "$script_stage/Fix-Universal-Clipboard.command"
+          ditto -c -k --keepParent --norsrc --noextattr --noqtn --noacl "$script_stage" "Universal-Clipboard-Repair-Script-v${APP_VERSION}-macOS.zip"
+
+      - name: Upload script artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Universal-Clipboard-Repair-Script-v${{ steps.version.outputs.version }}-macOS
+          path: Universal-Clipboard-Repair-Script-v${{ steps.version.outputs.version }}-macOS.zip
+          if-no-files-found: error
+
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         env:
@@ -78,8 +97,9 @@ jobs:
           APP_VERSION: ${{ steps.version.outputs.version }}
         run: |
           archive="Universal-Clipboard-Repair-v${APP_VERSION}-macOS.zip"
+          script_archive="Universal-Clipboard-Repair-Script-v${APP_VERSION}-macOS.zip"
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" "$archive" --clobber
+            gh release upload "$GITHUB_REF_NAME" "$archive" "$script_archive" --clobber
           else
-            gh release create "$GITHUB_REF_NAME" "$archive" --verify-tag --title "Universal Clipboard Repair $GITHUB_REF_NAME" --generate-notes
+            gh release create "$GITHUB_REF_NAME" "$archive" "$script_archive" --verify-tag --title "Universal Clipboard Repair $GITHUB_REF_NAME" --generate-notes
           fi
