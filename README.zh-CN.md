@@ -24,6 +24,8 @@
 
 它不会替代苹果系统的共享剪贴板，也不会保存或同步剪贴板历史；它只观察相关系统状态，并执行有限、可逆的修复操作。
 
+App 内置简体中文和 English 两种界面语言。首次启动时会跟随 macOS 的语言设置，也可以在窗口右上角手动切换；选择会保存在本机，下次启动继续使用。
+
 > 开箱即用：无需安装、无需 `sudo`，下载 Release 压缩包、解压后即可使用。App 包体约 **2.3 MB**，属于几 MB 级别的轻量工具；空闲运行时的实际内存会包含 macOS/AppKit 系统框架，当前本机实测约 **91 MB RSS**，不同系统版本会有所变化。
 
 README 顶部的 `downloads` 徽章显示所有 GitHub Release 附件的累计下载量；进入 [Releases](https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases) 页面，还可以查看每个版本压缩包的单独下载次数。
@@ -154,10 +156,10 @@ killall pboard
 open "build/Universal Clipboard Repair.app"
 ```
 
-默认构建版本为 `1.0.0`。也可以指定版本号：
+默认构建版本为 `1.0.3`。也可以指定版本号：
 
 ```sh
-APP_VERSION=1.0.0 ./build-app.sh
+APP_VERSION=1.0.3 ./build-app.sh
 ```
 
 ## 用户端首次打开与 Gatekeeper 放行
@@ -185,11 +187,11 @@ APP_VERSION=1.0.0 ./build-app.sh
 1. 打开仓库的 **Actions** 页面。
 2. 选择 **Build macOS App**。
 3. 点击 **Run workflow**。
-4. 填写版本号，例如 `1.0.0`。
+4. 填写版本号，例如 `1.0.3`。
 5. 点击 **Run workflow**。
 6. 在完成的任务页面下载 `Universal-Clipboard-Repair-v*-macOS` artifact。
 
-推送版本标签（例如 `v1.0.0`）后，工作流会自动构建 App，并把压缩包附加到对应的 GitHub Release。
+推送版本标签（例如 `v1.0.3`）后，工作流会自动构建 App，并把压缩包附加到对应的 GitHub Release。
 
 ### 纯脚本模式
 

@@ -3,6 +3,96 @@
 
 static NSString * const kRepositoryURLString = @"https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair";
 static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest";
+static NSString * const kLanguagePreferenceKey = @"ContinuityRepairLanguage";
+
+static NSDictionary<NSString *, NSString *> *LocalizationTable(BOOL chinese) {
+    static NSDictionary<NSString *, NSString *> *zh;
+    static NSDictionary<NSString *, NSString *> *en;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        zh = @{
+            @"windowTitle": @"通用剪贴板修复",
+            @"appTitle": @"通用剪贴板修复",
+            @"subtitle": @"观察 Handoff、Universal Clipboard、共享摄像头和连接条件。两个修复按钮彼此独立，不退出 iCloud、不重置网络、无需 sudo。",
+            @"repairHandoff": @"修复 Handoff / 剪贴板",
+            @"repairCamera": @"修复共享摄像头",
+            @"refresh": @"刷新状态",
+            @"statusHeader": @"当前状态（每 20 秒自动刷新）",
+            @"rowHandoff": @"ClipboardSharingEnabled（defaults read）",
+            @"rowUserActivity": @"useractivityd（接力服务）",
+            @"rowSharing": @"sharingd（共享服务）",
+            @"rowPboard": @"pboard（本机剪贴板）",
+            @"rowCameraAgent": @"ContinuityCaptureAgent（摄像头服务）",
+            @"rowWifi": @"Wi‑Fi 电源",
+            @"rowBluetooth": @"蓝牙控制器",
+            @"rowProxy": @"科学插件 / 系统代理",
+            @"rowMagic": @"Camera magic（应为 1）",
+            @"rowUsable": @"Camera usable（应为 1）",
+            @"rowNearby": @"Camera nearby（应为 1）",
+            @"rowWired": @"Camera wired（无线正常应为 0）",
+            @"ready": @"准备就绪。",
+            @"finalTip": @"最终提示：可以尝试来回切换科学插件的“全局/规则”模式。如以上都无法修复，只有分别重启两端的设备，属于三十六计中的最后一计。",
+            @"versionFormat": @"当前版本 v%@",
+            @"repository": @"GitHub 仓库",
+            @"checkUpdates": @"检查新版本",
+            @"releasesOpened": @"已打开 GitHub Releases，请查看最新版本。",
+            @"statusExit": @"状态读取退出码：%d\n%@",
+            @"runningFormat": @"%@ 正在执行…\n",
+            @"finishedFormat": @"%@（退出码 %d）\n%@",
+            @"loading": @"读取中…",
+            @"development": @"开发版",
+            @"handoffOn": @"ON（1）",
+            @"on": @"开启",
+            @"off": @"关闭",
+            @"unknown": @"未知",
+            @"languageChinese": @"中文",
+            @"languageEnglish": @"English"
+        };
+        en = @{
+            @"windowTitle": @"Universal Clipboard Repair",
+            @"appTitle": @"Universal Clipboard Repair",
+            @"subtitle": @"Monitor Handoff, Universal Clipboard, Continuity Camera, and connection conditions. The repair actions are independent; no iCloud sign-out, network reset, or sudo required.",
+            @"repairHandoff": @"Repair Handoff / Clipboard",
+            @"repairCamera": @"Repair Continuity Camera",
+            @"refresh": @"Refresh Status",
+            @"statusHeader": @"Current Status (auto-refreshes every 20 seconds)",
+            @"rowHandoff": @"ClipboardSharingEnabled (defaults read)",
+            @"rowUserActivity": @"useractivityd (Handoff service)",
+            @"rowSharing": @"sharingd (sharing service)",
+            @"rowPboard": @"pboard (local clipboard)",
+            @"rowCameraAgent": @"ContinuityCaptureAgent (camera service)",
+            @"rowWifi": @"Wi‑Fi power",
+            @"rowBluetooth": @"Bluetooth controller",
+            @"rowProxy": @"Proxy plugin / system proxy",
+            @"rowMagic": @"Camera magic (expected 1)",
+            @"rowUsable": @"Camera usable (expected 1)",
+            @"rowNearby": @"Camera nearby (expected 1)",
+            @"rowWired": @"Camera wired (wireless normal = 0)",
+            @"ready": @"Ready.",
+            @"finalTip": @"Final tip: try switching the scientific-networking plugin between “Global” and “Rule” mode. If none of the steps above works, restart both devices separately—the final move of the Thirty-Six Stratagems.",
+            @"versionFormat": @"Version v%@",
+            @"repository": @"GitHub Repository",
+            @"checkUpdates": @"Check for Updates",
+            @"releasesOpened": @"GitHub Releases opened. Check for the latest version.",
+            @"statusExit": @"Status command exited with code %d\n%@",
+            @"runningFormat": @"%@ is running…\n",
+            @"finishedFormat": @"%@ (exit code %d)\n%@",
+            @"loading": @"Loading…",
+            @"development": @"Development",
+            @"handoffOn": @"ON (1)",
+            @"on": @"ON",
+            @"off": @"OFF",
+            @"unknown": @"UNKNOWN",
+            @"languageChinese": @"中文",
+            @"languageEnglish": @"English"
+        };
+    });
+    return chinese ? zh : en;
+}
+
+static NSString *Localized(BOOL chinese, NSString *key) {
+    return LocalizationTable(chinese)[key] ?: key;
+}
 
 @interface CommandRunner : NSObject
 + (void)runScript:(NSString *)script completion:(void (^)(NSString *, int))completion;
@@ -106,9 +196,13 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
 
 @interface StatusRow : NSObject
 @property(nonatomic, strong) NSStackView *container;
+@property(nonatomic, strong) NSTextField *titleLabel;
 @property(nonatomic, strong) NSTextField *valueLabel;
 @property(nonatomic, strong) NSButton *indicator;
+@property(nonatomic, assign) BOOL hasValue;
 - (instancetype)initWithTitle:(NSString *)title;
+- (void)setTitle:(NSString *)title;
+- (void)setLoadingText:(NSString *)text;
 - (void)setText:(NSString *)text healthy:(BOOL)healthy known:(BOOL)known;
 @end
 
@@ -117,13 +211,13 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
     self = [super init];
     if (!self) return nil;
 
-    NSTextField *titleLabel = [NSTextField labelWithString:title];
-    titleLabel.font = [NSFont systemFontOfSize:13];
-    titleLabel.alignment = NSTextAlignmentRight;
-    [titleLabel setContentHuggingPriority:NSLayoutPriorityRequired forOrientation:NSLayoutConstraintOrientationHorizontal];
-    [[titleLabel widthAnchor] constraintEqualToConstant:230].active = YES;
+    self.titleLabel = [NSTextField labelWithString:title];
+    self.titleLabel.font = [NSFont systemFontOfSize:13];
+    self.titleLabel.alignment = NSTextAlignmentRight;
+    [self.titleLabel setContentHuggingPriority:NSLayoutPriorityRequired forOrientation:NSLayoutConstraintOrientationHorizontal];
+    [[self.titleLabel widthAnchor] constraintEqualToConstant:285].active = YES;
 
-    self.valueLabel = [NSTextField labelWithString:@"读取中…"];
+    self.valueLabel = [NSTextField labelWithString:@""];
     self.valueLabel.font = [NSFont monospacedSystemFontOfSize:12 weight:NSFontWeightRegular];
     self.valueLabel.lineBreakMode = NSLineBreakByTruncatingTail;
 
@@ -132,7 +226,7 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
     self.indicator.enabled = NO;
     [self.indicator setContentHuggingPriority:NSLayoutPriorityRequired forOrientation:NSLayoutConstraintOrientationHorizontal];
 
-    self.container = [NSStackView stackViewWithViews:@[ titleLabel, self.valueLabel, self.indicator ]];
+    self.container = [NSStackView stackViewWithViews:@[ self.titleLabel, self.valueLabel, self.indicator ]];
     self.container.orientation = NSUserInterfaceLayoutOrientationHorizontal;
     self.container.alignment = NSLayoutAttributeCenterY;
     self.container.spacing = 10;
@@ -146,7 +240,18 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
     return self;
 }
 
+- (void)setTitle:(NSString *)title {
+    self.titleLabel.stringValue = title ?: @"";
+}
+
+- (void)setLoadingText:(NSString *)text {
+    if (!self.hasValue) {
+        self.valueLabel.stringValue = text ?: @"";
+    }
+}
+
 - (void)setText:(NSString *)text healthy:(BOOL)healthy known:(BOOL)known {
+    self.hasValue = YES;
     self.valueLabel.stringValue = text ?: @"UNKNOWN";
     self.indicator.state = known ? (healthy ? NSControlStateValueOn : NSControlStateValueOff) : NSControlStateValueMixed;
 }
@@ -154,10 +259,23 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 @property(nonatomic, strong) NSWindow *window;
+@property(nonatomic, assign) BOOL chineseLanguage;
+@property(nonatomic, strong) NSSegmentedControl *languageSwitcher;
+@property(nonatomic, strong) NSTextField *titleLabel;
+@property(nonatomic, strong) NSTextField *subtitleLabel;
+@property(nonatomic, strong) NSTextField *statusTitleLabel;
+@property(nonatomic, strong) NSTextField *noteLabel;
+@property(nonatomic, strong) NSTextField *versionLabel;
+@property(nonatomic, strong) RaisedButton *handoffButton;
+@property(nonatomic, strong) RaisedButton *cameraButton;
+@property(nonatomic, strong) RaisedButton *refreshButton;
+@property(nonatomic, strong) NSButton *repositoryButton;
+@property(nonatomic, strong) NSButton *updateButton;
 @property(nonatomic, strong) NSStackView *statusStack;
 @property(nonatomic, strong) NSTextView *outputView;
 @property(nonatomic, strong) NSMutableDictionary<NSString *, StatusRow *> *rows;
 @property(nonatomic, strong) NSArray<NSButton *> *actionButtons;
+@property(nonatomic, assign) BOOL actionRunning;
 @end
 
 @implementation AppDelegate
@@ -168,14 +286,99 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
     if (appIcon != nil) {
         [NSApp setApplicationIconImage:appIcon];
     }
+    NSNumber *savedLanguage = [[NSUserDefaults standardUserDefaults] objectForKey:kLanguagePreferenceKey];
+    if (savedLanguage != nil) {
+        self.chineseLanguage = savedLanguage.boolValue;
+    } else {
+        self.chineseLanguage = [[NSLocale currentLocale].languageCode.lowercaseString hasPrefix:@"zh"];
+    }
     self.rows = [NSMutableDictionary dictionary];
     [self buildWindow];
+    [self updateLocalizedText];
     [self refreshStatuses];
     [NSTimer scheduledTimerWithTimeInterval:20.0 target:self selector:@selector(refreshStatuses) userInfo:nil repeats:YES];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
     return YES;
+}
+
+- (NSString *)localized:(NSString *)key {
+    return Localized(self.chineseLanguage, key);
+}
+
+- (void)setRaisedButton:(RaisedButton *)button title:(NSString *)title {
+    button.title = title;
+    button.attributedTitle = [[NSAttributedString alloc] initWithString:title attributes:@{
+        NSForegroundColorAttributeName: NSColor.whiteColor,
+        NSFontAttributeName: [NSFont systemFontOfSize:13 weight:NSFontWeightSemibold]
+    }];
+}
+
+- (void)setFooterButton:(NSButton *)button title:(NSString *)title underlined:(BOOL)underlined {
+    button.title = title;
+    NSMutableDictionary *attributes = [@{
+        NSForegroundColorAttributeName: [NSColor colorWithWhite:0.12 alpha:1],
+        NSFontAttributeName: button.font
+    } mutableCopy];
+    if (underlined) {
+        attributes[NSUnderlineStyleAttributeName] = @(NSUnderlineStyleSingle);
+    }
+    button.attributedTitle = [[NSAttributedString alloc] initWithString:title attributes:attributes];
+}
+
+- (NSString *)displayStatusValue:(NSString *)value {
+    if ([value isEqualToString:@"UNKNOWN"]) return [self localized:@"unknown"];
+    if ([value isEqualToString:@"ON"]) return [self localized:@"on"];
+    if ([value isEqualToString:@"OFF"]) return [self localized:@"off"];
+    return value ?: [self localized:@"unknown"];
+}
+
+- (void)languageChanged:(NSSegmentedControl *)sender {
+    self.chineseLanguage = sender.selectedSegment == 0;
+    [[NSUserDefaults standardUserDefaults] setBool:self.chineseLanguage forKey:kLanguagePreferenceKey];
+    [self updateLocalizedText];
+}
+
+- (void)updateLocalizedText {
+    self.window.title = [self localized:@"windowTitle"];
+    self.titleLabel.stringValue = [self localized:@"appTitle"];
+    self.subtitleLabel.stringValue = [self localized:@"subtitle"];
+    self.statusTitleLabel.stringValue = [self localized:@"statusHeader"];
+    self.noteLabel.stringValue = [self localized:@"finalTip"];
+    [self setRaisedButton:self.handoffButton title:[self localized:@"repairHandoff"]];
+    [self setRaisedButton:self.cameraButton title:[self localized:@"repairCamera"]];
+    [self setRaisedButton:self.refreshButton title:[self localized:@"refresh"]];
+    [self setFooterButton:self.repositoryButton title:[self localized:@"repository"] underlined:YES];
+    [self setFooterButton:self.updateButton title:[self localized:@"checkUpdates"] underlined:NO];
+    NSString *version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: [self localized:@"development"];
+    self.versionLabel.stringValue = [NSString stringWithFormat:[self localized:@"versionFormat"], version];
+    [self.languageSwitcher setLabel:[self localized:@"languageChinese"] forSegment:0];
+    [self.languageSwitcher setLabel:[self localized:@"languageEnglish"] forSegment:1];
+    self.languageSwitcher.selectedSegment = self.chineseLanguage ? 0 : 1;
+
+    NSDictionary<NSString *, NSString *> *rowTitles = @{
+        @"handoff": [self localized:@"rowHandoff"],
+        @"useractivityd": [self localized:@"rowUserActivity"],
+        @"sharingd": [self localized:@"rowSharing"],
+        @"pboard": [self localized:@"rowPboard"],
+        @"cameraAgent": [self localized:@"rowCameraAgent"],
+        @"wifi": [self localized:@"rowWifi"],
+        @"bluetooth": [self localized:@"rowBluetooth"],
+        @"proxy": [self localized:@"rowProxy"],
+        @"cameraMagic": [self localized:@"rowMagic"],
+        @"cameraUsable": [self localized:@"rowUsable"],
+        @"cameraNearby": [self localized:@"rowNearby"],
+        @"cameraWired": [self localized:@"rowWired"]
+    };
+    [rowTitles enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSString *title, BOOL *stop) {
+        [self.rows[key] setTitle:title];
+        [self.rows[key] setLoadingText:[self localized:@"loading"]];
+    }];
+
+    if (!self.actionRunning && self.outputView.string.length == 0) {
+        self.outputView.string = [self localized:@"ready"];
+    }
 }
 
 - (RaisedButton *)buttonWithTitle:(NSString *)title
@@ -221,7 +424,7 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
 
 - (void)checkForUpdates:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:kLatestReleasesURLString]];
-    self.outputView.string = @"已打开 GitHub Releases，请查看最新版本。";
+    self.outputView.string = [self localized:@"releasesOpened"];
 }
 
 - (void)buildWindow {
@@ -229,82 +432,98 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
                                               styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable)
                                                 backing:NSBackingStoreBuffered
                                                   defer:NO];
-    self.window.title = @"Universal Clipboard Repair";
+    self.window.title = [self localized:@"windowTitle"];
     self.window.minSize = NSMakeSize(650, 720);
     [self.window center];
 
     NSView *root = [[NSView alloc] init];
     self.window.contentView = root;
 
-    NSTextField *title = [NSTextField labelWithString:@"Universal Clipboard Repair"];
-    title.font = [NSFont systemFontOfSize:24 weight:NSFontWeightSemibold];
+    self.titleLabel = [NSTextField labelWithString:[self localized:@"appTitle"]];
+    self.titleLabel.font = [NSFont systemFontOfSize:24 weight:NSFontWeightSemibold];
 
-    NSTextField *subtitle = [NSTextField wrappingLabelWithString:@"观察 Handoff、Universal Clipboard、共享摄像头和连接条件。两个修复按钮彼此独立，不退出 iCloud、不重置网络、无需 sudo。"];
-    subtitle.font = [NSFont systemFontOfSize:13];
-    subtitle.textColor = NSColor.secondaryLabelColor;
+    self.subtitleLabel = [NSTextField wrappingLabelWithString:[self localized:@"subtitle"]];
+    self.subtitleLabel.font = [NSFont systemFontOfSize:13];
+    self.subtitleLabel.textColor = NSColor.secondaryLabelColor;
 
-    RaisedButton *handoffButton = [self buttonWithTitle:@"修复 Handoff / 剪贴板"
-                                                 action:@selector(repairHandoff)
-                                              topColor:[NSColor colorWithSRGBRed:0.29 green:0.59 blue:0.96 alpha:1]
-                                           bottomColor:[NSColor colorWithSRGBRed:0.12 green:0.38 blue:0.80 alpha:1]
-                                                  width:184];
-    RaisedButton *cameraButton = [self buttonWithTitle:@"修复共享摄像头"
-                                                 action:@selector(repairCamera)
-                                              topColor:[NSColor colorWithSRGBRed:0.63 green:0.42 blue:0.89 alpha:1]
-                                           bottomColor:[NSColor colorWithSRGBRed:0.37 green:0.19 blue:0.68 alpha:1]
-                                                  width:168];
-    RaisedButton *refreshButton = [self buttonWithTitle:@"刷新状态"
-                                                  action:@selector(refreshStatuses)
-                                               topColor:[NSColor colorWithSRGBRed:0.48 green:0.52 blue:0.58 alpha:1]
-                                            bottomColor:[NSColor colorWithSRGBRed:0.27 green:0.30 blue:0.36 alpha:1]
-                                                   width:108];
-    self.actionButtons = @[ handoffButton, cameraButton, refreshButton ];
+    self.languageSwitcher = [[NSSegmentedControl alloc] initWithFrame:NSZeroRect];
+    self.languageSwitcher.segmentCount = 2;
+    [self.languageSwitcher setLabel:[self localized:@"languageChinese"] forSegment:0];
+    [self.languageSwitcher setLabel:[self localized:@"languageEnglish"] forSegment:1];
+    self.languageSwitcher.selectedSegment = self.chineseLanguage ? 0 : 1;
+    self.languageSwitcher.target = self;
+    self.languageSwitcher.action = @selector(languageChanged:);
+    self.languageSwitcher.trackingMode = NSSegmentSwitchTrackingSelectOne;
+    [self.languageSwitcher.widthAnchor constraintEqualToConstant:124].active = YES;
+    [self.languageSwitcher.heightAnchor constraintEqualToConstant:26].active = YES;
+    NSStackView *header = [NSStackView stackViewWithViews:@[ self.titleLabel, self.languageSwitcher ]];
+    header.orientation = NSUserInterfaceLayoutOrientationHorizontal;
+    header.alignment = NSLayoutAttributeCenterY;
+    header.distribution = NSStackViewDistributionFill;
+    header.spacing = 12;
 
-    NSStackView *buttons = [NSStackView stackViewWithViews:@[ handoffButton, cameraButton, refreshButton ]];
+    self.handoffButton = [self buttonWithTitle:[self localized:@"repairHandoff"]
+                                         action:@selector(repairHandoff)
+                                      topColor:[NSColor colorWithSRGBRed:0.29 green:0.59 blue:0.96 alpha:1]
+                                   bottomColor:[NSColor colorWithSRGBRed:0.12 green:0.38 blue:0.80 alpha:1]
+                                          width:200];
+    self.cameraButton = [self buttonWithTitle:[self localized:@"repairCamera"]
+                                        action:@selector(repairCamera)
+                                     topColor:[NSColor colorWithSRGBRed:0.63 green:0.42 blue:0.89 alpha:1]
+                                  bottomColor:[NSColor colorWithSRGBRed:0.37 green:0.19 blue:0.68 alpha:1]
+                                         width:190];
+    self.refreshButton = [self buttonWithTitle:[self localized:@"refresh"]
+                                         action:@selector(refreshStatuses)
+                                      topColor:[NSColor colorWithSRGBRed:0.48 green:0.52 blue:0.58 alpha:1]
+                                   bottomColor:[NSColor colorWithSRGBRed:0.27 green:0.30 blue:0.36 alpha:1]
+                                          width:120];
+    self.actionButtons = @[ self.handoffButton, self.cameraButton, self.refreshButton ];
+
+    NSStackView *buttons = [NSStackView stackViewWithViews:self.actionButtons];
     buttons.orientation = NSUserInterfaceLayoutOrientationHorizontal;
     buttons.spacing = 10;
 
-    NSTextField *statusTitle = [NSTextField labelWithString:@"当前状态（每 20 秒自动刷新）"];
-    statusTitle.font = [NSFont systemFontOfSize:15 weight:NSFontWeightMedium];
+    self.statusTitleLabel = [NSTextField labelWithString:[self localized:@"statusHeader"]];
+    self.statusTitleLabel.font = [NSFont systemFontOfSize:15 weight:NSFontWeightMedium];
 
     self.statusStack = [[NSStackView alloc] init];
     self.statusStack.orientation = NSUserInterfaceLayoutOrientationVertical;
     self.statusStack.alignment = NSLayoutAttributeLeading;
     self.statusStack.spacing = 4;
 
-    [self addRowWithKey:@"handoff" title:@"ClipboardSharingEnabled（defaults read）"];
-    [self addRowWithKey:@"useractivityd" title:@"useractivityd（接力服务）"];
-    [self addRowWithKey:@"sharingd" title:@"sharingd（共享服务）"];
-    [self addRowWithKey:@"pboard" title:@"pboard（本机剪贴板）"];
-    [self addRowWithKey:@"cameraAgent" title:@"ContinuityCaptureAgent（摄像头服务）"];
-    [self addRowWithKey:@"wifi" title:@"Wi‑Fi 电源"];
-    [self addRowWithKey:@"bluetooth" title:@"蓝牙控制器"];
-    [self addRowWithKey:@"proxy" title:@"科学插件 / 系统代理"];
-    [self addRowWithKey:@"cameraMagic" title:@"Camera magic（应为 1）"];
-    [self addRowWithKey:@"cameraUsable" title:@"Camera usable（应为 1）"];
-    [self addRowWithKey:@"cameraNearby" title:@"Camera nearby（应为 1）"];
-    [self addRowWithKey:@"cameraWired" title:@"Camera wired（无线正常应为 0）"];
+    [self addRowWithKey:@"handoff" title:[self localized:@"rowHandoff"]];
+    [self addRowWithKey:@"useractivityd" title:[self localized:@"rowUserActivity"]];
+    [self addRowWithKey:@"sharingd" title:[self localized:@"rowSharing"]];
+    [self addRowWithKey:@"pboard" title:[self localized:@"rowPboard"]];
+    [self addRowWithKey:@"cameraAgent" title:[self localized:@"rowCameraAgent"]];
+    [self addRowWithKey:@"wifi" title:[self localized:@"rowWifi"]];
+    [self addRowWithKey:@"bluetooth" title:[self localized:@"rowBluetooth"]];
+    [self addRowWithKey:@"proxy" title:[self localized:@"rowProxy"]];
+    [self addRowWithKey:@"cameraMagic" title:[self localized:@"rowMagic"]];
+    [self addRowWithKey:@"cameraUsable" title:[self localized:@"rowUsable"]];
+    [self addRowWithKey:@"cameraNearby" title:[self localized:@"rowNearby"]];
+    [self addRowWithKey:@"cameraWired" title:[self localized:@"rowWired"]];
 
     self.outputView = [[NSTextView alloc] init];
     self.outputView.editable = NO;
     self.outputView.selectable = YES;
     self.outputView.font = [NSFont monospacedSystemFontOfSize:11 weight:NSFontWeightRegular];
     self.outputView.backgroundColor = NSColor.textBackgroundColor;
-    self.outputView.string = @"准备就绪。";
+    self.outputView.string = [self localized:@"ready"];
     [self.outputView.heightAnchor constraintEqualToConstant:88].active = YES;
 
-    NSTextField *note = [NSTextField wrappingLabelWithString:@"最终提示：可以尝试来回切换科学插件的“全局/规则”模式。如以上都无法修复，只有分别重启两端的设备，属于三十六计中的最后一计。"];
-    note.font = [NSFont systemFontOfSize:11];
-    note.textColor = NSColor.systemRedColor;
+    self.noteLabel = [NSTextField wrappingLabelWithString:[self localized:@"finalTip"]];
+    self.noteLabel.font = [NSFont systemFontOfSize:11];
+    self.noteLabel.textColor = NSColor.systemRedColor;
 
-    NSString *version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"开发版";
-    NSTextField *versionLabel = [NSTextField labelWithString:[NSString stringWithFormat:@"当前版本 v%@", version]];
-    versionLabel.font = [NSFont systemFontOfSize:11 weight:NSFontWeightMedium];
-    versionLabel.textColor = [NSColor colorWithWhite:0.12 alpha:1];
+    NSString *version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: [self localized:@"development"];
+    self.versionLabel = [NSTextField labelWithString:[NSString stringWithFormat:[self localized:@"versionFormat"], version]];
+    self.versionLabel.font = [NSFont systemFontOfSize:11 weight:NSFontWeightMedium];
+    self.versionLabel.textColor = [NSColor colorWithWhite:0.12 alpha:1];
 
-    NSButton *repositoryButton = [self footerButtonWithTitle:@"GitHub 仓库" action:@selector(openRepository:) underlined:YES];
-    NSButton *updateButton = [self footerButtonWithTitle:@"检查新版本" action:@selector(checkForUpdates:) underlined:NO];
-    NSStackView *footerContent = [NSStackView stackViewWithViews:@[ versionLabel, repositoryButton, updateButton ]];
+    self.repositoryButton = [self footerButtonWithTitle:[self localized:@"repository"] action:@selector(openRepository:) underlined:YES];
+    self.updateButton = [self footerButtonWithTitle:[self localized:@"checkUpdates"] action:@selector(checkForUpdates:) underlined:NO];
+    NSStackView *footerContent = [NSStackView stackViewWithViews:@[ self.versionLabel, self.repositoryButton, self.updateButton ]];
     footerContent.orientation = NSUserInterfaceLayoutOrientationHorizontal;
     footerContent.alignment = NSLayoutAttributeCenterY;
     footerContent.spacing = 12;
@@ -323,7 +542,7 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
         [footerContent.centerYAnchor constraintEqualToAnchor:footerCard.centerYAnchor]
     ]];
 
-    NSStackView *stack = [NSStackView stackViewWithViews:@[ title, subtitle, buttons, statusTitle, self.statusStack, self.outputView, note, footerCard ]];
+    NSStackView *stack = [NSStackView stackViewWithViews:@[ header, self.subtitleLabel, buttons, self.statusTitleLabel, self.statusStack, self.outputView, self.noteLabel, footerCard ]];
     stack.orientation = NSUserInterfaceLayoutOrientationVertical;
     stack.alignment = NSLayoutAttributeLeading;
     stack.spacing = 12;
@@ -334,10 +553,11 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
         [stack.trailingAnchor constraintEqualToAnchor:root.trailingAnchor constant:-24],
         [stack.topAnchor constraintEqualToAnchor:root.topAnchor constant:22],
         [stack.bottomAnchor constraintEqualToAnchor:root.bottomAnchor constant:-18],
-        [subtitle.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
+        [header.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
+        [self.subtitleLabel.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
         [self.statusStack.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
         [self.outputView.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
-        [note.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
+        [self.noteLabel.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
         [footerCard.widthAnchor constraintEqualToAnchor:stack.widthAnchor]
     ]];
 
@@ -376,47 +596,52 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
     [CommandRunner runScript:script completion:^(NSString *output, int status) {
         NSDictionary *values = [self parseOutput:output];
         NSString *handoff = values[@"handoff"] ?: @"UNKNOWN";
-        [self.rows[@"handoff"] setText:[handoff isEqualToString:@"1"] ? @"ON（1）" : handoff healthy:[handoff isEqualToString:@"1"] known:![handoff isEqualToString:@"UNKNOWN"]];
+        NSString *handoffText = [handoff isEqualToString:@"1"] ? [self localized:@"handoffOn"] : [self displayStatusValue:handoff];
+        [self.rows[@"handoff"] setText:handoffText healthy:[handoff isEqualToString:@"1"] known:![handoff isEqualToString:@"UNKNOWN"]];
 
         for (NSString *key in @[ @"useractivityd", @"sharingd", @"pboard", @"cameraAgent", @"wifi", @"bluetooth" ]) {
             NSString *value = values[key] ?: @"UNKNOWN";
-            [self.rows[key] setText:value healthy:[value isEqualToString:@"ON"] known:![value isEqualToString:@"UNKNOWN"]];
+            [self.rows[key] setText:[self displayStatusValue:value] healthy:[value isEqualToString:@"ON"] known:![value isEqualToString:@"UNKNOWN"]];
         }
 
         NSString *cameraMagic = values[@"cameraMagic"] ?: @"UNKNOWN";
         NSString *cameraUsable = values[@"cameraUsable"] ?: @"UNKNOWN";
         NSString *cameraNearby = values[@"cameraNearby"] ?: @"UNKNOWN";
         NSString *cameraWired = values[@"cameraWired"] ?: @"UNKNOWN";
-        [self.rows[@"cameraMagic"] setText:cameraMagic healthy:[cameraMagic isEqualToString:@"1"] known:![cameraMagic isEqualToString:@"UNKNOWN"]];
-        [self.rows[@"cameraUsable"] setText:cameraUsable healthy:[cameraUsable isEqualToString:@"1"] known:![cameraUsable isEqualToString:@"UNKNOWN"]];
-        [self.rows[@"cameraNearby"] setText:cameraNearby healthy:[cameraNearby isEqualToString:@"1"] known:![cameraNearby isEqualToString:@"UNKNOWN"]];
-        [self.rows[@"cameraWired"] setText:cameraWired healthy:[cameraWired isEqualToString:@"0"] known:![cameraWired isEqualToString:@"UNKNOWN"]];
+        [self.rows[@"cameraMagic"] setText:[self displayStatusValue:cameraMagic] healthy:[cameraMagic isEqualToString:@"1"] known:![cameraMagic isEqualToString:@"UNKNOWN"]];
+        [self.rows[@"cameraUsable"] setText:[self displayStatusValue:cameraUsable] healthy:[cameraUsable isEqualToString:@"1"] known:![cameraUsable isEqualToString:@"UNKNOWN"]];
+        [self.rows[@"cameraNearby"] setText:[self displayStatusValue:cameraNearby] healthy:[cameraNearby isEqualToString:@"1"] known:![cameraNearby isEqualToString:@"UNKNOWN"]];
+        [self.rows[@"cameraWired"] setText:[self displayStatusValue:cameraWired] healthy:[cameraWired isEqualToString:@"0"] known:![cameraWired isEqualToString:@"UNKNOWN"]];
 
         NSString *proxy = values[@"proxy"] ?: @"UNKNOWN";
-        [self.rows[@"proxy"] setText:proxy healthy:NO known:NO];
+        [self.rows[@"proxy"] setText:[self displayStatusValue:proxy] healthy:NO known:NO];
         if (status != 0) {
-            self.outputView.string = [NSString stringWithFormat:@"状态读取退出码：%d\n%@", status, output];
+            self.outputView.string = [NSString stringWithFormat:[self localized:@"statusExit"], status, output];
         }
     }];
 }
 
 - (void)repairHandoff {
-    [self runActionNamed:@"Handoff 修复" resource:@"repair-handoff"];
+    [self runActionNamed:[self localized:@"repairHandoff"] resource:@"repair-handoff"];
 }
 
 - (void)repairCamera {
-    [self runActionNamed:@"共享摄像头修复" resource:@"repair-camera"];
+    [self runActionNamed:[self localized:@"repairCamera"] resource:@"repair-camera"];
 }
 
 - (void)runActionNamed:(NSString *)name resource:(NSString *)resource {
     NSString *script = [self resourceScript:resource];
     if (script.length == 0) return;
+    self.actionRunning = YES;
     for (NSButton *button in self.actionButtons) button.enabled = NO;
-    self.outputView.string = [NSString stringWithFormat:@"%@ 正在执行…\n", name];
+    NSString *language = self.chineseLanguage ? @"zh" : @"en";
+    script = [NSString stringWithFormat:@"export CONTINUITY_REPAIR_LANG=%@\n%@", language, script];
+    self.outputView.string = [NSString stringWithFormat:[self localized:@"runningFormat"], name];
 
     [CommandRunner runScript:script completion:^(NSString *output, int status) {
+        self.actionRunning = NO;
         for (NSButton *button in self.actionButtons) button.enabled = YES;
-        self.outputView.string = [NSString stringWithFormat:@"%@（退出码 %d）\n%@", name, status, output];
+        self.outputView.string = [NSString stringWithFormat:[self localized:@"finishedFormat"], name, status, output];
         [self refreshStatuses];
     }];
 }

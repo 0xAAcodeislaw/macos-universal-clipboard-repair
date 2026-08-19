@@ -30,6 +30,8 @@ macOS Universal Clipboard Repair is a small, local-only diagnostic and repair ap
 
 It is designed for the narrow failure mode where macOS discovers another Apple device but a Continuity service is stuck. It does not replace Universal Clipboard, store clipboard history, or synchronize clipboard data itself.
 
+The app includes Simplified Chinese and English UI languages. It follows the macOS language on first launch, and the language can be switched from the upper-right control; the choice is saved locally for the next launch.
+
 > Ready to use: no installer and no `sudo` required. Download a Release archive, unzip it, and open the app. The app bundle is about **2.3 MB**, making it a few-megabyte lightweight utility. Actual idle RSS includes macOS/AppKit frameworks; it measured about **91 MB RSS** on the development Mac and varies by macOS version.
 
 The `downloads` badge above shows the cumulative download count for all GitHub Release assets. The [Releases](https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases) page also shows the count for each version archive.
@@ -161,11 +163,11 @@ To build a downloadable app from GitHub:
 
 1. Open the **Actions** tab.
 2. Select **Build macOS App**.
-3. Enter a version number, such as `1.0.0`.
+3. Enter a version number, such as `1.0.3`.
 4. Choose **Run workflow**.
 5. Download the versioned `Universal-Clipboard-Repair-v*-macOS` artifact from the completed run.
 
-Pushing a version tag such as `v1.0.0` runs the same build and attaches the App archive to a GitHub Release automatically.
+Pushing a version tag such as `v1.0.3` runs the same build and attaches the App archive to a GitHub Release automatically.
 
 ### Script-only mode
 
