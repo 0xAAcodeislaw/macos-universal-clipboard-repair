@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT_DIR="${0:A:h}"
 APP_DIR="$ROOT_DIR/build/Universal Clipboard Repair.app"
 CONTENTS_DIR="$APP_DIR/Contents"
-APP_VERSION="${APP_VERSION:-1.0.0}"
+APP_VERSION="${APP_VERSION:-1.0.3}"
 
 rm -rf "$APP_DIR"
 mkdir -p "$CONTENTS_DIR/MacOS" "$CONTENTS_DIR/Resources"
