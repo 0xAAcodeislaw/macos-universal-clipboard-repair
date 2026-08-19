@@ -12,6 +12,20 @@ macOS Universal Clipboard Repair is a small, local-only diagnostic and repair ap
 
 It is designed for the narrow failure mode where macOS discovers another Apple device but a Continuity service is stuck. It does not replace Universal Clipboard, store clipboard history, or synchronize clipboard data itself.
 
+## Typical symptoms and search terms
+
+This project is intended for symptoms such as:
+
+- Mac, iPhone, or iPad cannot copy and paste across devices
+- Universal Clipboard, shared clipboard, or Handoff / 接力 stops working while devices are still discoverable
+- `ClipboardSharingEnabled` is `0`, disabled, or missing
+- `useractivityd`, `sharingd`, or `pboard` is not running as expected
+- Continuity Camera / shared camera is unavailable, or the camera works while Universal Clipboard does not
+- `ContinuityCaptureAgent` is missing, repeatedly exits, or reports `magic`, `usable`, `nearby`, or `wired` as `UNKNOWN`
+- A proxy or scientific-networking plugin makes Continuity recover after switching between Global and Rule mode
+
+Search terms include: `Universal Clipboard not working`, `Handoff not working`, `shared clipboard Mac iPhone`, `ClipboardSharingEnabled 0`, `useractivityd`, `sharingd`, `pboard`, `Continuity Camera not working`, `ContinuityCaptureAgent`, `macOS clipboard sharing`, `通用剪贴板失效`, `接力失效`, and `共享摄像头无法使用`.
+
 ## Safety boundary
 
 The app:

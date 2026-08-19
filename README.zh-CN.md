@@ -6,6 +6,38 @@
 
 它不会替代苹果系统的共享剪贴板，也不会保存或同步剪贴板历史；它只观察相关系统状态，并执行有限、可逆的修复操作。
 
+## 故障现象（搜索关键词）
+
+如果你遇到下面这些现象，本项目可能适合用来观察和修复。这里保留了常见中文、英文、系统服务名和参数名，方便通过 GitHub 或搜索引擎定位：
+
+### 通用剪贴板与接力
+
+- Mac、iPhone、iPad 之间无法复制粘贴
+- 通用剪贴板失效、共享剪贴板不工作、跨设备复制粘贴失败
+- Handoff（接力）失效，但设备仍然可以互相发现
+- 复制后另一台设备没有出现接力提示，或者粘贴不到刚刚复制的内容
+- `ClipboardSharingEnabled` 读取为 `0`、关闭或缺失
+- `useractivityd`（接力服务）、`sharingd`（共享服务）或 `pboard`（本机剪贴板）状态异常
+
+常见英文关键词：`Universal Clipboard not working`、`Handoff not working`、`shared clipboard between Mac and iPhone`、`clipboard sharing disabled`、`ClipboardSharingEnabled 0`、`useractivityd`、`sharingd`、`pboard`。
+
+### 连续互通相机与共享摄像头
+
+- Continuity Camera（连续互通相机、共享摄像头）无法使用
+- 共享摄像头正常，但 Universal Clipboard / Handoff 仍然失效
+- `magic`、`usable`、`nearby`、`wired` 状态异常或显示 `UNKNOWN`
+- `ContinuityCaptureAgent` 没有运行、反复退出或状态不更新
+
+常见英文关键词：`Continuity Camera not working`、`iPhone camera Mac`、`ContinuityCaptureAgent`、`magic usable nearby wired`。
+
+### 代理与科学插件相关现象
+
+- 翻墙工具、代理或科学插件运行时，Universal Clipboard / Handoff 偶尔失效
+- 切换科学插件的“全局/规则”模式后，接力或共享剪贴板恢复
+- 关闭代理后恢复，但重新开启后故障再次出现
+
+本项目不会绑定某个具体代理软件名称；不同工具统一按“科学插件 / 系统代理”观察。
+
 ## 能做什么
 
 - 查看 `ClipboardSharingEnabled` 是否开启
