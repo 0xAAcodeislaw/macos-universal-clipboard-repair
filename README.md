@@ -1,5 +1,7 @@
 # macOS Universal Clipboard Repair
 
+[简体中文](README.zh-CN.md)
+
 macOS Universal Clipboard Repair is a small, local-only diagnostic and repair app for Apple Continuity features:
 
 - Universal Clipboard / Handoff
@@ -72,8 +74,11 @@ To build a downloadable app from GitHub:
 
 1. Open the **Actions** tab.
 2. Select **Build macOS App**.
-3. Choose **Run workflow**.
-4. Download the `Universal-Clipboard-Repair-macOS` artifact from the completed run.
+3. Enter a version number, such as `1.0.0`.
+4. Choose **Run workflow**.
+5. Download the versioned `Universal-Clipboard-Repair-v*-macOS` artifact from the completed run.
+
+Pushing a version tag such as `v1.0.0` runs the same build and attaches the App archive to a GitHub Release automatically.
 
 ## Similar projects and scope
 
