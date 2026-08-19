@@ -2,6 +2,19 @@
 
 [English](README.md)
 
+<p align="center">
+  <img src="Resources/AppIcon.png" width="128" alt="Universal Clipboard Repair 图标">
+</p>
+
+<p align="center">
+  <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest"><img src="https://img.shields.io/github/v/release/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="最新版本"></a>
+  <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/actions/workflows/build-app.yml"><img src="https://img.shields.io/github/actions/workflow/status/0xAAcodeislaw/macos-universal-clipboard-repair/build-app.yml?branch=main&style=flat-square" alt="构建状态"></a>
+  <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/stargazers"><img src="https://img.shields.io/github/stars/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="GitHub Stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="MIT License"></a>
+</p>
+
+<p align="center"><a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest">下载最新 macOS App</a></p>
+
 这是一个面向 macOS 的轻量级 Universal Clipboard（通用剪贴板）与 Handoff（接力）诊断、修复工具。
 
 它不会替代苹果系统的共享剪贴板，也不会保存或同步剪贴板历史；它只观察相关系统状态，并执行有限、可逆的修复操作。
@@ -121,6 +134,12 @@ APP_VERSION=1.0.0 ./build-app.sh
 ## 项目定位
 
 本项目专注于苹果系统原生 Continuity 服务的观察和修复，不是第三方剪贴板同步软件，也不是系统清理或网络代理工具。
+
+## 参与项目
+
+- [贡献指南](CONTRIBUTING.md)
+- [更新日志](CHANGELOG.md)
+- [报告故障](.github/ISSUE_TEMPLATE/bug-report.md)
 
 ## License
 

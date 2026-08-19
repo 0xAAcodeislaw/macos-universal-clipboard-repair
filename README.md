@@ -2,6 +2,19 @@
 
 [简体中文](README.zh-CN.md)
 
+<p align="center">
+  <img src="Resources/AppIcon.png" width="128" alt="Universal Clipboard Repair icon">
+</p>
+
+<p align="center">
+  <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest"><img src="https://img.shields.io/github/v/release/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="Latest release"></a>
+  <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/actions/workflows/build-app.yml"><img src="https://img.shields.io/github/actions/workflow/status/0xAAcodeislaw/macos-universal-clipboard-repair/build-app.yml?branch=main&style=flat-square" alt="Build status"></a>
+  <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/stargazers"><img src="https://img.shields.io/github/stars/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="GitHub stars"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="MIT License"></a>
+</p>
+
+<p align="center"><a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest">Download the latest macOS App</a></p>
+
 macOS Universal Clipboard Repair is a small, local-only diagnostic and repair app for Apple Continuity features:
 
 - Universal Clipboard / Handoff
@@ -103,6 +116,12 @@ This project is intentionally different from clipboard synchronization apps. Pub
 - [UniClipboard](https://github.com/UniClipboard/UniClipboard) and [Uniclip](https://github.com/quackduck/uniclip), which implement alternative clipboard synchronization rather than repairing Apple's native Continuity stack.
 
 The goal here is a small, transparent, reversible repair and observation tool for Apple's native services.
+
+## Contributing and changelog
+
+- [Contributing guide](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
+- [Report a bug](.github/ISSUE_TEMPLATE/bug-report.md)
 
 ## License
 
