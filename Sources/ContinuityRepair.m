@@ -160,6 +160,11 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    NSString *iconPath = [[NSBundle mainBundle] pathForResource:@"AppIcon" ofType:@"icns"];
+    NSImage *appIcon = [[NSImage alloc] initWithContentsOfFile:iconPath];
+    if (appIcon != nil) {
+        [NSApp setApplicationIconImage:appIcon];
+    }
     self.rows = [NSMutableDictionary dictionary];
     [self buildWindow];
     [self refreshStatuses];
