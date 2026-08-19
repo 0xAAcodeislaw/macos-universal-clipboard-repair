@@ -1,6 +1,9 @@
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/QuartzCore.h>
 
+static NSString * const kRepositoryURLString = @"https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair";
+static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest";
+
 @interface CommandRunner : NSObject
 + (void)runScript:(NSString *)script completion:(void (^)(NSString *, int))completion;
 @end
@@ -196,13 +199,38 @@
     return button;
 }
 
+- (NSButton *)footerButtonWithTitle:(NSString *)title action:(SEL)action underlined:(BOOL)underlined {
+    NSButton *button = [NSButton buttonWithTitle:title target:self action:action];
+    button.bordered = NO;
+    button.focusRingType = NSFocusRingTypeNone;
+    button.font = [NSFont systemFontOfSize:11 weight:NSFontWeightMedium];
+    NSMutableDictionary *attributes = [@{
+        NSForegroundColorAttributeName: [NSColor colorWithWhite:0.12 alpha:1],
+        NSFontAttributeName: button.font
+    } mutableCopy];
+    if (underlined) {
+        attributes[NSUnderlineStyleAttributeName] = @(NSUnderlineStyleSingle);
+    }
+    button.attributedTitle = [[NSAttributedString alloc] initWithString:title attributes:attributes];
+    return button;
+}
+
+- (void)openRepository:(id)sender {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:kRepositoryURLString]];
+}
+
+- (void)checkForUpdates:(id)sender {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:kLatestReleasesURLString]];
+    self.outputView.string = @"已打开 GitHub Releases，请查看最新版本。";
+}
+
 - (void)buildWindow {
-    self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 760, 760)
+    self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 760, 800)
                                               styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable)
                                                 backing:NSBackingStoreBuffered
                                                   defer:NO];
     self.window.title = @"Universal Clipboard Repair";
-    self.window.minSize = NSMakeSize(650, 680);
+    self.window.minSize = NSMakeSize(650, 720);
     [self.window center];
 
     NSView *root = [[NSView alloc] init];
@@ -269,7 +297,33 @@
     note.font = [NSFont systemFontOfSize:11];
     note.textColor = NSColor.systemRedColor;
 
-    NSStackView *stack = [NSStackView stackViewWithViews:@[ title, subtitle, buttons, statusTitle, self.statusStack, self.outputView, note ]];
+    NSString *version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"开发版";
+    NSTextField *versionLabel = [NSTextField labelWithString:[NSString stringWithFormat:@"当前版本 v%@", version]];
+    versionLabel.font = [NSFont systemFontOfSize:11 weight:NSFontWeightMedium];
+    versionLabel.textColor = [NSColor colorWithWhite:0.12 alpha:1];
+
+    NSButton *repositoryButton = [self footerButtonWithTitle:@"GitHub 仓库" action:@selector(openRepository:) underlined:YES];
+    NSButton *updateButton = [self footerButtonWithTitle:@"检查新版本" action:@selector(checkForUpdates:) underlined:NO];
+    NSStackView *footerContent = [NSStackView stackViewWithViews:@[ versionLabel, repositoryButton, updateButton ]];
+    footerContent.orientation = NSUserInterfaceLayoutOrientationHorizontal;
+    footerContent.alignment = NSLayoutAttributeCenterY;
+    footerContent.spacing = 12;
+
+    NSView *footerCard = [[NSView alloc] init];
+    footerCard.wantsLayer = YES;
+    footerCard.layer.cornerRadius = 8;
+    footerCard.layer.borderWidth = 0.5;
+    footerCard.layer.borderColor = [NSColor colorWithWhite:0 alpha:0.10].CGColor;
+    footerCard.layer.backgroundColor = [NSColor colorWithWhite:0.96 alpha:1].CGColor;
+    [footerCard addSubview:footerContent];
+    [NSLayoutConstraint activateConstraints:@[
+        [footerCard.heightAnchor constraintEqualToConstant:36],
+        [footerContent.leadingAnchor constraintEqualToAnchor:footerCard.leadingAnchor constant:12],
+        [footerContent.trailingAnchor constraintLessThanOrEqualToAnchor:footerCard.trailingAnchor constant:-12],
+        [footerContent.centerYAnchor constraintEqualToAnchor:footerCard.centerYAnchor]
+    ]];
+
+    NSStackView *stack = [NSStackView stackViewWithViews:@[ title, subtitle, buttons, statusTitle, self.statusStack, self.outputView, note, footerCard ]];
     stack.orientation = NSUserInterfaceLayoutOrientationVertical;
     stack.alignment = NSLayoutAttributeLeading;
     stack.spacing = 12;
@@ -283,7 +337,8 @@
         [subtitle.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
         [self.statusStack.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
         [self.outputView.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
-        [note.widthAnchor constraintEqualToAnchor:stack.widthAnchor]
+        [note.widthAnchor constraintEqualToAnchor:stack.widthAnchor],
+        [footerCard.widthAnchor constraintEqualToAnchor:stack.widthAnchor]
     ]];
 
     [self.window makeKeyAndOrderFront:nil];

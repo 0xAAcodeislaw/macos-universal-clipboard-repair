@@ -24,6 +24,8 @@
 
 README 顶部的 `downloads` 徽章显示所有 GitHub Release 附件的累计下载量；进入 [Releases](https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases) 页面，还可以查看每个版本压缩包的单独下载次数。
 
+App 窗口底部会显示当前版本、[GitHub 仓库](https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair)和“检查新版本”入口。点击“检查新版本”会打开 GitHub Releases 页面，不会在后台读取系统信息或持续联网。
+
 ## 故障现象（搜索关键词）
 
 如果你遇到下面这些现象，本项目可能适合用来观察和修复。这里保留了常见中文、英文、系统服务名和参数名，方便通过 GitHub 或搜索引擎定位：

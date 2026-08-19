@@ -30,6 +30,8 @@ It is designed for the narrow failure mode where macOS discovers another Apple d
 
 The `downloads` badge above shows the cumulative download count for all GitHub Release assets. The [Releases](https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases) page also shows the count for each version archive.
 
+The bottom of the app window shows the current version, a link to the [GitHub repository](https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair), and a **Check for updates** entry. Clicking it opens the GitHub Releases page; the app does not continuously access system data or make background network requests.
+
 ## Typical symptoms and search terms
 
 This project is intended for symptoms such as:
