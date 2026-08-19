@@ -42,6 +42,7 @@ This project is intended for symptoms such as:
 
 - Mac, iPhone, or iPad cannot copy and paste across devices
 - Universal Clipboard, shared clipboard, or Handoff / 接力 stops working while devices are still discoverable
+- Universal Clipboard fails in only one direction: Mac to iPhone works but iPhone to Mac does not, or vice versa
 - `ClipboardSharingEnabled` is `0`, disabled, or missing
 - `useractivityd`, `sharingd`, or `pboard` is not running as expected
 - Continuity Camera / shared camera is unavailable, or the camera works while Universal Clipboard does not
@@ -49,6 +50,36 @@ This project is intended for symptoms such as:
 - A proxy or scientific-networking plugin makes Continuity recover after switching between Global and Rule mode
 
 Search terms include: `Universal Clipboard not working`, `Handoff not working`, `shared clipboard Mac iPhone`, `ClipboardSharingEnabled 0`, `useractivityd`, `sharingd`, `pboard`, `Continuity Camera not working`, `ContinuityCaptureAgent`, `macOS clipboard sharing`, `通用剪贴板失效`, `接力失效`, and `共享摄像头无法使用`.
+
+## Recommended troubleshooting order
+
+Start with the simplest and lowest-risk action. Most temporary failures do not require signing out of iCloud, resetting networking, or modifying Keychain data.
+
+### Step 1: Restart each side
+
+1. First restart the device that cannot send its clipboard content. After it starts and is unlocked, wait about 30 seconds, then copy a short plain-text sample from Apple Notes and test again.
+2. If the problem remains, restart the other device that receives and pastes the content, then retest.
+3. If you cannot tell which side is faulty, restart both the iPhone or iPad and the Mac.
+
+A one-way failure helps identify the affected side:
+
+- Mac → iPhone works, but iPhone → Mac fails: restart the iPhone first.
+- iPhone → Mac works, but Mac → iPhone fails: restart the Mac first; if restarting does not help, run this app's Handoff / Universal Clipboard repair.
+
+This project has recorded a confirmed one-way incident: Mac → iPhone worked while iPhone → Mac failed. The Mac discovered the iPhone, but the phone did not advertise shared clipboard availability. Restarting the iPhone restored the feature. In this situation, repeatedly restarting `useractivityd`, `sharingd`, and `pboard` on the Mac cannot repair the phone-side service.
+
+### Step 2: Check the prerequisites
+
+- Both devices use the same Apple Account.
+- Wi-Fi, Bluetooth, and Handoff are enabled on both devices.
+- Keep both devices unlocked and nearby, and test with a small plain-text selection first.
+- If either device runs beta system software, install the latest available update first.
+
+### Step 3: Repair the Mac services
+
+If restarting does not help and the Mac still cannot send or receive clipboard content, run the app's Handoff / Universal Clipboard repair. The button can restart only the relevant macOS services; it cannot restart or repair clipboard services inside an iPhone or iPad.
+
+Try proxy-mode changes only after these steps. A USB cable does not replace the Bluetooth discovery and nearby Wi-Fi link used by Universal Clipboard, so connecting a cable normally does not repair shared clipboard failures.
 
 ## Safety boundary
 
@@ -75,7 +106,7 @@ The camera repair only restarts `ContinuityCaptureAgent` and waits for it to ret
 
 ## Proxy tools
 
-As a last resort, if the steps above do not repair Continuity, try switching the scientific-networking/proxy plugin between **Global** and **Rule** mode. Once Continuity recovers, it will usually be possible to switch back to Global mode. The app intentionally uses generic wording and only reads system proxy state; it cannot reliably determine the internal mode of every proxy plugin.
+Final tip: try switching the scientific-networking/proxy plugin back and forth between **Global** and **Rule** mode. If none of the steps above works, restart both devices separately—the final of the Thirty-Six Stratagems and the last resort. The app intentionally uses generic wording and only reads system proxy state; it cannot reliably determine the internal mode of every proxy plugin.
 
 ## Camera state
 
