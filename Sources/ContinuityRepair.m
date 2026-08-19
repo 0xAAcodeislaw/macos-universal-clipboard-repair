@@ -293,7 +293,7 @@ static NSString * const kLatestReleasesURLString = @"https://github.com/0xAAcode
     self.outputView.string = @"准备就绪。";
     [self.outputView.heightAnchor constraintEqualToConstant:88].active = YES;
 
-    NSTextField *note = [NSTextField wrappingLabelWithString:@"穷途末路的提示：如以上都无法修复，可以尝试切换科学插件的“全局/规则”模式，恢复之后大概率可以再切回全局模式。"];
+    NSTextField *note = [NSTextField wrappingLabelWithString:@"最终提示：可以尝试来回切换科学插件的“全局/规则”模式。如以上都无法修复，只有分别重启两端的设备，属于三十六计中的最后一计。"];
     note.font = [NSFont systemFontOfSize:11];
     note.textColor = NSColor.systemRedColor;
 
