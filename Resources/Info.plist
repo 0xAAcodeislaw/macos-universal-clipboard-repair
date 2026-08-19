@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>UniversalClipboardRepair</string>
 	<key>CFBundleIdentifier</key>
-	<string>local.coben.universal-clipboard-repair</string>
+	<string>org.universalclipboardrepair.app</string>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundleInfoDictionaryVersion</key>

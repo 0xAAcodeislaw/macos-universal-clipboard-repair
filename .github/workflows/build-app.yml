@@ -59,4 +59,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           APP_VERSION: ${{ steps.version.outputs.version }}
-        run: gh release create "$GITHUB_REF_NAME" "Universal-Clipboard-Repair-v${APP_VERSION}-macOS.zip" --verify-tag --title "Universal Clipboard Repair $GITHUB_REF_NAME" --generate-notes
+        run: |
+          archive="Universal-Clipboard-Repair-v${APP_VERSION}-macOS.zip"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$archive" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$archive" --verify-tag --title "Universal Clipboard Repair $GITHUB_REF_NAME" --generate-notes
+          fi
