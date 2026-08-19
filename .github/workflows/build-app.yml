@@ -19,6 +19,8 @@ jobs:
   build:
     name: Build Universal Clipboard Repair
     runs-on: macos-14
+    env:
+      SIGNING_ENABLED: ${{ secrets.SIGNING_ENABLED }}
 
     steps:
       - name: Check out source
@@ -41,6 +43,21 @@ jobs:
         env:
           APP_VERSION: ${{ steps.version.outputs.version }}
         run: ./build-app.sh
+
+      - name: Sign and notarize app
+        if: env.SIGNING_ENABLED == 'true'
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: ./scripts/sign-and-notarize.sh "build/Universal Clipboard Repair.app"
+
+      - name: Explain unsigned build
+        if: env.SIGNING_ENABLED != 'true'
+        run: echo "Signing is not enabled; this artifact is unsigned and may require Gatekeeper approval on first launch."
 
       - name: Package app
         env:

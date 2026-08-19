@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest"><img src="https://img.shields.io/github/v/release/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="最新版本"></a>
+  <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases"><img src="https://img.shields.io/github/downloads/0xAAcodeislaw/macos-universal-clipboard-repair/total?style=flat-square&label=downloads" alt="下载量"></a>
   <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/actions/workflows/build-app.yml"><img src="https://img.shields.io/github/actions/workflow/status/0xAAcodeislaw/macos-universal-clipboard-repair/build-app.yml?branch=main&style=flat-square" alt="构建状态"></a>
   <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/stargazers"><img src="https://img.shields.io/github/stars/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="GitHub Stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="MIT License"></a>
@@ -18,6 +19,10 @@
 这是一个面向 macOS 的轻量级 Universal Clipboard（通用剪贴板）与 Handoff（接力）诊断、修复工具。
 
 它不会替代苹果系统的共享剪贴板，也不会保存或同步剪贴板历史；它只观察相关系统状态，并执行有限、可逆的修复操作。
+
+> 开箱即用：无需安装、无需 `sudo`，下载 Release 压缩包、解压后即可使用。App 包体约 **2.3 MB**，属于几 MB 级别的轻量工具；空闲运行时的实际内存会包含 macOS/AppKit 系统框架，当前本机实测约 **91 MB RSS**，不同系统版本会有所变化。
+
+README 顶部的 `downloads` 徽章显示所有 GitHub Release 附件的累计下载量；进入 [Releases](https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases) 页面，还可以查看每个版本压缩包的单独下载次数。
 
 ## 故障现象（搜索关键词）
 
@@ -118,7 +123,19 @@ open "build/Universal Clipboard Repair.app"
 APP_VERSION=1.0.0 ./build-app.sh
 ```
 
-生成的 App 未经过 Apple 签名。如果首次打开时被 Gatekeeper 拦截，请在 App 上右键，选择“打开”，然后再次选择“打开”。
+生成的 App 是否可以绕过 Gatekeeper 直接打开，取决于发布构建是否配置了 Apple Developer ID 签名与公证。
+
+当前仓库在没有签名凭据时仍会生成可审阅、可测试的未签名 App。首次从网络下载未签名版本时，如果 macOS 提示“无法验证开发者”、阻止打开，甚至建议“移到废纸篓”：
+
+1. 在 App 上右键，选择“打开”，再确认一次“打开”。
+2. 如果仍被拦截，打开“系统设置 → 隐私与安全性”，在安全性提示旁选择“仍要打开”。
+3. 仅在你确认下载来源可信时，也可以在终端执行：
+
+   ```sh
+   xattr -dr com.apple.quarantine "/Applications/Universal Clipboard Repair.app"
+   ```
+
+要让普通用户下载后真正双击即开，需要在仓库的 GitHub Actions Secrets 中配置 Developer ID Application 证书和 Apple 公证凭据。工作流已经预留了自动签名、公证和 stapling 流程；未配置时不会伪装成已签名版本。
 
 ## 使用 GitHub Actions 生成 App
 
@@ -130,6 +147,24 @@ APP_VERSION=1.0.0 ./build-app.sh
 6. 在完成的任务页面下载 `Universal-Clipboard-Repair-v*-macOS` artifact。
 
 推送版本标签（例如 `v1.0.0`）后，工作流会自动构建 App，并把压缩包附加到对应的 GitHub Release。
+
+### 启用签名与公证
+
+维护者可以在仓库设置中添加以下 Actions Secrets：
+
+- `SIGNING_ENABLED`：填写 `true` 才启用签名流程
+- `APPLE_CERTIFICATE_BASE64`：Developer ID Application `.p12` 证书的 Base64 内容
+- `APPLE_CERTIFICATE_PASSWORD`：`.p12` 证书密码
+- `APPLE_SIGNING_IDENTITY`：证书名称，例如 `Developer ID Application: Example (TEAMID)`
+- `APPLE_ID`：用于公证的 Apple 账户
+- `APPLE_TEAM_ID`：Apple Developer Team ID
+- `APPLE_APP_PASSWORD`：该 Apple 账户的 App 专用密码
+
+证书、密码和私钥只应保存为 GitHub Secrets，不要提交到仓库或贴到 Issue、README、聊天记录中。
+
+## 开发说明
+
+本项目的代码、界面、构建脚本和文档均由 **OpenAI Codex** 协作完成，并以公开源码、可审阅、可复现和可自行编译为目标。所有修复动作仍严格限定在 macOS 原生能力和本 README 所列的安全边界内。
 
 ## 项目定位
 

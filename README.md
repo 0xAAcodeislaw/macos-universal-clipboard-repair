@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest"><img src="https://img.shields.io/github/v/release/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="Latest release"></a>
+  <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases"><img src="https://img.shields.io/github/downloads/0xAAcodeislaw/macos-universal-clipboard-repair/total?style=flat-square&label=downloads" alt="Downloads"></a>
   <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/actions/workflows/build-app.yml"><img src="https://img.shields.io/github/actions/workflow/status/0xAAcodeislaw/macos-universal-clipboard-repair/build-app.yml?branch=main&style=flat-square" alt="Build status"></a>
   <a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/stargazers"><img src="https://img.shields.io/github/stars/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="GitHub stars"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="MIT License"></a>
@@ -24,6 +25,10 @@ macOS Universal Clipboard Repair is a small, local-only diagnostic and repair ap
 - Recent Continuity Camera state: `magic`, `usable`, `nearby`, `wired`
 
 It is designed for the narrow failure mode where macOS discovers another Apple device but a Continuity service is stuck. It does not replace Universal Clipboard, store clipboard history, or synchronize clipboard data itself.
+
+> Ready to use: no installer and no `sudo` required. Download a Release archive, unzip it, and open the app. The app bundle is about **2.3 MB**, making it a few-megabyte lightweight utility. Actual idle RSS includes macOS/AppKit frameworks; it measured about **91 MB RSS** on the development Mac and varies by macOS version.
+
+The `downloads` badge above shows the cumulative download count for all GitHub Release assets. The [Releases](https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases) page also shows the count for each version archive.
 
 ## Typical symptoms and search terms
 
@@ -93,7 +98,19 @@ Build the app locally:
 open "build/Universal Clipboard Repair.app"
 ```
 
-The resulting app is unsigned. If Gatekeeper blocks the first launch, right-click the app, choose **Open**, then choose **Open** again.
+Whether the app can bypass Gatekeeper on first launch depends on whether the release build has Apple Developer ID signing and notarization configured.
+
+When signing credentials are not configured, this repository still produces a transparent, testable unsigned app. If macOS says it cannot verify the developer, blocks the app, or suggests moving it to the Trash after download:
+
+1. Right-click the app, choose **Open**, then confirm **Open** again.
+2. If it is still blocked, open **System Settings → Privacy & Security** and choose **Open Anyway** beside the security notice.
+3. Only when you trust the download source, you can also remove the downloaded-file quarantine flag:
+
+   ```sh
+   xattr -dr com.apple.quarantine "/Applications/Universal Clipboard Repair.app"
+   ```
+
+For a true double-click launch without this prompt, the repository must publish a build signed with a Developer ID Application certificate and notarized by Apple. The workflow includes an opt-in signing, notarization, and stapling path; if it is not enabled, it does not pretend that the artifact is signed.
 
 ## GitHub Actions
 
@@ -106,6 +123,24 @@ To build a downloadable app from GitHub:
 5. Download the versioned `Universal-Clipboard-Repair-v*-macOS` artifact from the completed run.
 
 Pushing a version tag such as `v1.0.0` runs the same build and attaches the App archive to a GitHub Release automatically.
+
+### Enabling signing and notarization
+
+Maintainers can add these GitHub Actions Secrets in the repository settings:
+
+- `SIGNING_ENABLED`: set to `true` to enable the signing path
+- `APPLE_CERTIFICATE_BASE64`: Base64 content of the Developer ID Application `.p12` certificate
+- `APPLE_CERTIFICATE_PASSWORD`: password for the `.p12` file
+- `APPLE_SIGNING_IDENTITY`: certificate name, such as `Developer ID Application: Example (TEAMID)`
+- `APPLE_ID`: Apple account used for notarization
+- `APPLE_TEAM_ID`: Apple Developer Team ID
+- `APPLE_APP_PASSWORD`: app-specific password for that Apple account
+
+Keep certificates, passwords, and private keys in GitHub Secrets only. Never commit them or paste them into an Issue, README, or chat.
+
+## Development note
+
+The code, interface, build scripts, and documentation for this project were completed with **OpenAI Codex** collaboration, with the repository kept public for review, reproducible builds, and independent compilation. The repair actions remain limited to macOS-native operations described in this README.
 
 ## Similar projects and scope
 
