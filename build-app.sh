@@ -17,6 +17,7 @@ cp "$ROOT_DIR/Resources/Info.plist" "$CONTENTS_DIR/Info.plist"
 cp "$ROOT_DIR/Resources/status.sh" "$CONTENTS_DIR/Resources/status.sh"
 cp "$ROOT_DIR/Resources/repair-handoff.sh" "$CONTENTS_DIR/Resources/repair-handoff.sh"
 cp "$ROOT_DIR/Resources/repair-camera.sh" "$CONTENTS_DIR/Resources/repair-camera.sh"
+cp "$ROOT_DIR/Resources/AppIcon.icns" "$CONTENTS_DIR/Resources/AppIcon.icns"
 
 chmod +x "$CONTENTS_DIR/MacOS/UniversalClipboardRepair"
 chmod +x "$CONTENTS_DIR/Resources/"*.sh
