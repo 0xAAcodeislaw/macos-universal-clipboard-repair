@@ -2,6 +2,10 @@
 
 [简体中文](README.zh-CN.md)
 
+## Development note
+
+The code, interface, build scripts, and documentation for this project were completed with **OpenAI Codex** collaboration, with the repository kept public for review, reproducible builds, and independent compilation. The repair actions remain limited to macOS-native operations described in this README.
+
 <p align="center">
   <img src="Resources/AppIcon.png" width="128" alt="Universal Clipboard Repair icon">
 </p>
@@ -163,10 +167,6 @@ Maintainers can add these GitHub Actions Secrets in the repository settings:
 - `APPLE_APP_PASSWORD`: app-specific password for that Apple account
 
 Keep certificates, passwords, and private keys in GitHub Secrets only. Never commit them or paste them into an Issue, README, or chat.
-
-## Development note
-
-The code, interface, build scripts, and documentation for this project were completed with **OpenAI Codex** collaboration, with the repository kept public for review, reproducible builds, and independent compilation. The repair actions remain limited to macOS-native operations described in this README.
 
 ## Similar projects and scope
 

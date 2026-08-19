@@ -2,6 +2,10 @@
 
 [English](README.md)
 
+## 开发说明
+
+本项目的代码、界面、构建脚本和文档均由 **OpenAI Codex** 协作完成，并以公开源码、可审阅、可复现和可自行编译为目标。所有修复动作仍严格限定在 macOS 原生能力和本 README 所列的安全边界内。
+
 <p align="center">
   <img src="Resources/AppIcon.png" width="128" alt="Universal Clipboard Repair 图标">
 </p>
@@ -187,10 +191,6 @@ zsh ./Fix-Universal-Clipboard.command
 - `APPLE_APP_PASSWORD`：该 Apple 账户的 App 专用密码
 
 证书、密码和私钥只应保存为 GitHub Secrets，不要提交到仓库或贴到 Issue、README、聊天记录中。
-
-## 开发说明
-
-本项目的代码、界面、构建脚本和文档均由 **OpenAI Codex** 协作完成，并以公开源码、可审阅、可复现和可自行编译为目标。所有修复动作仍严格限定在 macOS 原生能力和本 README 所列的安全边界内。
 
 ## 项目定位
 
