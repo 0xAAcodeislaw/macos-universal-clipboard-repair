@@ -18,7 +18,7 @@ The code, interface, build scripts, and documentation for this project were comp
   <a href="LICENSE"><img src="https://img.shields.io/github/license/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="MIT License"></a>
 </p>
 
-<p align="center"><a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest">Download the latest macOS App</a></p>
+<p align="center"><a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest">Download the latest macOS DMG</a></p>
 
 macOS Universal Clipboard Repair is a small, local-only diagnostic and repair app for Apple Continuity features:
 
@@ -32,7 +32,7 @@ It is designed for the narrow failure mode where macOS discovers another Apple d
 
 The app includes Simplified Chinese and English UI languages. It follows the macOS language on first launch, and the language can be switched from the upper-right control; the choice is saved locally for the next launch.
 
-> Ready to use: no installer and no `sudo` required. Download a Release archive, unzip it, and open the app. The app bundle is about **2.3 MB**, making it a few-megabyte lightweight utility. Actual idle RSS includes macOS/AppKit frameworks; it measured about **91 MB RSS** on the development Mac and varies by macOS version.
+> Ready to use: no installer and no `sudo` required. Download the Release DMG, open it, and drag the app to **Applications**. A ZIP archive is also provided. The app bundle is about **2.3 MB**, making it a few-megabyte lightweight utility. Actual idle RSS includes macOS/AppKit frameworks; it measured about **91 MB RSS** on the development Mac and varies by macOS version.
 
 The `downloads` badge above shows the cumulative download count for all GitHub Release assets. The [Releases](https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases) page also shows the count for each version archive.
 
@@ -141,33 +141,40 @@ open "build/Universal Clipboard Repair.app"
 
 When signing credentials are not configured, this repository still produces a transparent, testable unsigned app. If macOS says it cannot verify the developer, blocks the app, or suggests moving it to the Trash after download, follow these steps:
 
-1. Download the archive from a GitHub Release and unzip it. Do not run the app from the archive preview window.
-2. Double-click the app once so macOS records the blocked launch.
+1. Download the DMG from a GitHub Release, open it, and drag the app to **Applications**. The ZIP asset may be used instead, but do not run the app from the archive preview window.
+2. Double-click the app in **Applications** once so macOS records the blocked launch.
 3. Open **System Settings → Privacy & Security**, scroll to **Security**, click **Open Anyway**, and confirm **Open**. This button normally appears for a short time after you try to launch the app.
 4. Alternatively, right-click the app, choose **Open**, and confirm **Open** again.
 5. If **Open Anyway** is still not available, and you trust the download source, you can remove the quarantine flag for this file in Terminal. Adjust the path if the app is stored elsewhere:
 
    ```sh
-   xattr -dr com.apple.quarantine "$HOME/Downloads/Universal Clipboard Repair.app"
+   xattr -dr com.apple.quarantine "/Applications/Universal Clipboard Repair.app"
    ```
 
    If the app has a different name or location, replace the final path with the actual path. This only removes the downloaded-file quarantine flag; it does not disable Gatekeeper for the whole Mac.
 
 After one successful approval, macOS will normally allow the same app to open by double-clicking it. Only override Gatekeeper for a copy whose source you trust and whose contents have not been altered.
 
-For a true double-click launch without any user-side override, the repository must publish a build signed with a Developer ID Application certificate and notarized by Apple. The workflow includes an opt-in signing, notarization, and stapling path; if it is not enabled, it does not pretend that the artifact is signed.
+For a true double-click launch without any user-side override, the repository must publish a build signed with a Developer ID Application certificate and notarized by Apple. Putting an unsigned app in a DMG does not bypass Gatekeeper. The workflow includes an opt-in signing, notarization, and stapling path; if it is not enabled, it does not pretend that the artifact is signed.
 
 ## GitHub Actions
 
 To build a downloadable app from GitHub:
 
 1. Open the **Actions** tab.
-2. Select **Build macOS App**.
-3. Enter a version number, such as `1.0.3`.
+2. Select **Build macOS App and DMG**.
+3. Leave the version field blank to use the latest `v*` tag, or enter a version such as `1.0.3`.
 4. Choose **Run workflow**.
-5. Download the versioned `Universal-Clipboard-Repair-v*-macOS` artifact from the completed run.
+5. Download the versioned `Universal-Clipboard-Repair-v*-macOS-assets` artifact from the completed run.
 
-Pushing a version tag such as `v1.0.3` runs the same build and attaches the App archive to a GitHub Release automatically.
+Pushing a version tag such as `v1.0.3` runs the same build and creates or updates the matching GitHub Release. Each release contains:
+
+- `Universal-Clipboard-Repair-v*-macOS.dmg` for the standard drag-to-Applications flow;
+- `Universal-Clipboard-Repair-v*-macOS.zip` containing the app bundle;
+- `Universal-Clipboard-Repair-Script-v*-macOS.zip` for script-only repair;
+- `SHA256SUMS-v*.txt` for integrity verification.
+
+Unless the signing secrets below are configured, both the DMG and ZIP contain the same unsigned, unnotarized app and require the first-launch Gatekeeper approval described above.
 
 ### Script-only mode
 
@@ -185,7 +192,7 @@ zsh ./Fix-Universal-Clipboard.command
 
 The script-only version handles Universal Clipboard / Handoff only: it resets `ClipboardSharingEnabled`, restarts `useractivityd`, `sharingd`, and `pboard`, waits about 8 seconds, and checks their state. It does not use `sudo`, sign out of iCloud, reset networking, modify Keychain data, or touch Continuity Camera.
 
-The script archive is uploaded alongside the App archive as both a GitHub Actions artifact and a GitHub Release asset.
+The script archive is uploaded alongside the App archive and DMG as both a GitHub Actions artifact and a GitHub Release asset.
 
 ### Enabling signing and notarization
 

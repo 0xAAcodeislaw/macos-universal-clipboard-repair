@@ -18,7 +18,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/0xAAcodeislaw/macos-universal-clipboard-repair?style=flat-square" alt="MIT License"></a>
 </p>
 
-<p align="center"><a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest">下载最新 macOS App</a></p>
+<p align="center"><a href="https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases/latest">下载最新 macOS DMG</a></p>
 
 这是一个面向 macOS 的轻量级 Universal Clipboard（通用剪贴板）与 Handoff（接力）诊断、修复工具。
 
@@ -26,7 +26,7 @@
 
 App 内置简体中文和 English 两种界面语言。首次启动时会跟随 macOS 的语言设置，也可以在窗口右上角手动切换；选择会保存在本机，下次启动继续使用。
 
-> 开箱即用：无需安装、无需 `sudo`，下载 Release 压缩包、解压后即可使用。App 包体约 **2.3 MB**，属于几 MB 级别的轻量工具；空闲运行时的实际内存会包含 macOS/AppKit 系统框架，当前本机实测约 **91 MB RSS**，不同系统版本会有所变化。
+> 开箱即用：无需安装器、无需 `sudo`，下载 Release 的 DMG，打开后把 App 拖入“应用程序”即可。Release 同时提供 ZIP 压缩包。App 包体约 **2.3 MB**，属于几 MB 级别的轻量工具；空闲运行时的实际内存会包含 macOS/AppKit 系统框架，当前本机实测约 **91 MB RSS**，不同系统版本会有所变化。
 
 README 顶部的 `downloads` 徽章显示所有 GitHub Release 附件的累计下载量；进入 [Releases](https://github.com/0xAAcodeislaw/macos-universal-clipboard-repair/releases) 页面，还可以查看每个版本压缩包的单独下载次数。
 
@@ -166,32 +166,39 @@ APP_VERSION=1.0.3 ./build-app.sh
 
 当前仓库在没有签名凭据时仍会生成可审阅、可测试的未签名 App。首次从网络下载未签名版本时，如果 macOS 提示“无法验证开发者”、阻止打开，甚至建议“移到废纸篓”，请按以下步骤操作：
 
-1. 从 GitHub Release 下载压缩包并解压，不要直接在压缩包预览窗口中运行。
-2. 先双击 App 一次，让 macOS 记录这次拦截。
+1. 从 GitHub Release 下载 DMG，打开后把 App 拖入“应用程序”。也可以使用 ZIP 附件，但不要直接在压缩包预览窗口中运行。
+2. 在“应用程序”中先双击 App 一次，让 macOS 记录这次拦截。
 3. 打开 **系统设置 → 隐私与安全性**，滚动到“安全性”，点击 **仍要打开**，然后再次确认“打开”。这个按钮通常只会在刚刚尝试打开 App 后短时间出现。
 4. 也可以在 App 上右键，选择 **打开**，再确认一次 **打开**。
 5. 如果仍然没有“仍要打开”，并且你确认下载来源可信，可以在终端执行下面的命令。路径需要改成 App 的实际位置；如果 App 在“下载”文件夹中，可直接使用此示例：
 
    ```sh
-   xattr -dr com.apple.quarantine "$HOME/Downloads/Universal Clipboard Repair.app"
+   xattr -dr com.apple.quarantine "/Applications/Universal Clipboard Repair.app"
    ```
 
    如果 App 名称或位置不同，请把命令最后的路径替换为实际路径。这个操作只移除当前文件的下载隔离标记，不会关闭整个 macOS 的 Gatekeeper。
 
 完成一次放行后，通常就可以直接双击打开该 App。只对你确认来源可靠、文件未被篡改的版本执行上述操作。
 
-要让普通用户下载后无需任何放行操作、真正双击即开，需要在仓库的 GitHub Actions Secrets 中配置 Developer ID Application 证书和 Apple 公证凭据。工作流已经预留了自动签名、公证和 stapling 流程；未配置时不会伪装成已签名版本。
+要让普通用户下载后无需任何放行操作、真正双击即开，需要在仓库的 GitHub Actions Secrets 中配置 Developer ID Application 证书和 Apple 公证凭据。单纯把未签名 App 放进 DMG 不能绕过 Gatekeeper。工作流已经预留了自动签名、公证和 stapling 流程；未配置时不会伪装成已签名版本。
 
 ## 使用 GitHub Actions 生成 App
 
 1. 打开仓库的 **Actions** 页面。
-2. 选择 **Build macOS App**。
+2. 选择 **Build macOS App and DMG**。
 3. 点击 **Run workflow**。
-4. 填写版本号，例如 `1.0.3`。
+4. 版本号留空时自动使用最新的 `v*` 标签，也可以填写 `1.0.3` 这样的指定版本。
 5. 点击 **Run workflow**。
-6. 在完成的任务页面下载 `Universal-Clipboard-Repair-v*-macOS` artifact。
+6. 在完成的任务页面下载 `Universal-Clipboard-Repair-v*-macOS-assets` artifact。
 
-推送版本标签（例如 `v1.0.3`）后，工作流会自动构建 App，并把压缩包附加到对应的 GitHub Release。
+推送版本标签（例如 `v1.0.3`）后，工作流会自动构建 App，并创建或更新对应的 GitHub Release。每个 Release 包含：
+
+- `Universal-Clipboard-Repair-v*-macOS.dmg`：打开后拖入“应用程序”；
+- `Universal-Clipboard-Repair-v*-macOS.zip`：App 压缩包；
+- `Universal-Clipboard-Repair-Script-v*-macOS.zip`：纯脚本修复包；
+- `SHA256SUMS-v*.txt`：用于校验下载文件完整性。
+
+如果没有配置下文的签名凭据，DMG 和 ZIP 内仍是同一个未签名、未公证 App，首次运行需要按上文步骤通过 Gatekeeper 放行。
 
 ### 纯脚本模式
 
@@ -209,7 +216,7 @@ zsh ./Fix-Universal-Clipboard.command
 
 纯脚本版只处理 Universal Clipboard / Handoff：重置 `ClipboardSharingEnabled`，重启 `useractivityd`、`sharingd`、`pboard`，等待约 8 秒并检查状态。它不使用 `sudo`，不退出 iCloud，不重置网络，不修改钥匙串，也不会处理连续互通摄像头。
 
-脚本压缩包会和 App 压缩包一起出现在 GitHub Actions artifact 和 GitHub Release 中。
+脚本压缩包会和 App 压缩包、DMG 一起出现在 GitHub Actions artifact 和 GitHub Release 中。
 
 ### 启用签名与公证
 

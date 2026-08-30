@@ -1,12 +1,12 @@
-name: Build macOS App
+name: Build macOS App and DMG
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: App version, for example 1.0.3
-        required: true
-        default: 1.0.3
+        description: Optional version; leave blank to use the latest v* tag
+        required: false
+        default: ''
         type: string
   push:
     tags:
@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Resolve version
         id: version
@@ -33,10 +35,19 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
         run: |
           version="$INPUT_VERSION"
-          if [ -z "$version" ]; then
+          if [[ "$REF_NAME" == v* ]]; then
             version="$REF_NAME"
+          elif [ -z "$version" ]; then
+            version="$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)"
+          fi
+          if [ -z "$version" ]; then
+            version="1.0.3"
           fi
           version="${version#v}"
+          if [[ ! "$version" =~ ^[0-9]+([.][0-9]+){1,2}([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid version: $version" >&2
+            exit 1
+          fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Build app bundle
@@ -59,17 +70,15 @@ jobs:
         if: env.SIGNING_ENABLED != 'true'
         run: echo "Signing is not enabled; this artifact is unsigned and may require Gatekeeper approval on first launch."
 
-      - name: Package app
+      - name: Package app archive
         env:
           APP_VERSION: ${{ steps.version.outputs.version }}
         run: ditto -c -k --sequesterRsrc --keepParent "build/Universal Clipboard Repair.app" "Universal-Clipboard-Repair-v${APP_VERSION}-macOS.zip"
 
-      - name: Upload app artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Universal-Clipboard-Repair-v${{ steps.version.outputs.version }}-macOS
-          path: Universal-Clipboard-Repair-v${{ steps.version.outputs.version }}-macOS.zip
-          if-no-files-found: error
+      - name: Package DMG
+        env:
+          APP_VERSION: ${{ steps.version.outputs.version }}
+        run: ./scripts/create-dmg.sh "build/Universal Clipboard Repair.app" "Universal-Clipboard-Repair-v${APP_VERSION}-macOS.dmg"
 
       - name: Package script-only repair
         env:
@@ -83,11 +92,25 @@ jobs:
           chmod +x "$script_stage/Fix-Universal-Clipboard.command"
           ditto -c -k --keepParent --norsrc --noextattr --noqtn --noacl "$script_stage" "Universal-Clipboard-Repair-Script-v${APP_VERSION}-macOS.zip"
 
-      - name: Upload script artifact
+      - name: Create SHA-256 checksums
+        env:
+          APP_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          shasum -a 256 \
+            "Universal-Clipboard-Repair-v${APP_VERSION}-macOS.zip" \
+            "Universal-Clipboard-Repair-v${APP_VERSION}-macOS.dmg" \
+            "Universal-Clipboard-Repair-Script-v${APP_VERSION}-macOS.zip" \
+            > "SHA256SUMS-v${APP_VERSION}.txt"
+
+      - name: Upload release assets artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Universal-Clipboard-Repair-Script-v${{ steps.version.outputs.version }}-macOS
-          path: Universal-Clipboard-Repair-Script-v${{ steps.version.outputs.version }}-macOS.zip
+          name: Universal-Clipboard-Repair-v${{ steps.version.outputs.version }}-macOS-assets
+          path: |
+            Universal-Clipboard-Repair-v${{ steps.version.outputs.version }}-macOS.zip
+            Universal-Clipboard-Repair-v${{ steps.version.outputs.version }}-macOS.dmg
+            Universal-Clipboard-Repair-Script-v${{ steps.version.outputs.version }}-macOS.zip
+            SHA256SUMS-v${{ steps.version.outputs.version }}.txt
           if-no-files-found: error
 
       - name: Publish GitHub Release
@@ -97,9 +120,11 @@ jobs:
           APP_VERSION: ${{ steps.version.outputs.version }}
         run: |
           archive="Universal-Clipboard-Repair-v${APP_VERSION}-macOS.zip"
+          dmg="Universal-Clipboard-Repair-v${APP_VERSION}-macOS.dmg"
           script_archive="Universal-Clipboard-Repair-Script-v${APP_VERSION}-macOS.zip"
+          checksums="SHA256SUMS-v${APP_VERSION}.txt"
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" "$archive" "$script_archive" --clobber
+            gh release upload "$GITHUB_REF_NAME" "$archive" "$dmg" "$script_archive" "$checksums" --clobber
           else
-            gh release create "$GITHUB_REF_NAME" "$archive" "$script_archive" --verify-tag --title "Universal Clipboard Repair $GITHUB_REF_NAME" --generate-notes
+            gh release create "$GITHUB_REF_NAME" "$archive" "$dmg" "$script_archive" "$checksums" --verify-tag --title "Universal Clipboard Repair $GITHUB_REF_NAME" --generate-notes
           fi
