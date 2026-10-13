@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- 记录已验证的 iPhone 端连续互通相机恢复方法：当状态为 `magic:0 / usable:0 / nearby:1 / wired:0` 时，关闭再开启手机端的“接力”和“连续互通相机”。
+
 ## [1.0.3] - 2026-08-20
 
 - App 内置简体中文 / English 界面切换，并记住用户选择。

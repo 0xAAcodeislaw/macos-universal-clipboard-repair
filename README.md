@@ -123,6 +123,21 @@ wired:0
 
 If there is no matching log entry in the recent window, the app shows `UNKNOWN` instead of presenting stale data as current.
 
+### Confirmed iPhone-side recovery
+
+If `ContinuityCaptureAgent` is running and the recent state is:
+
+```text
+magic:0
+usable:0
+nearby:1
+wired:0
+```
+
+the Mac can see the nearby iPhone, but that iPhone is not advertising itself as an available camera. On the target iPhone, open **Settings → General → AirPlay & Continuity**, turn **Handoff** and **Continuity Camera** off, wait a few seconds, then turn both settings back on. Unlock the iPhone once, lock it again, keep it near the Mac, and reopen Photo Booth.
+
+This recovery was confirmed on October 13, 2026: restarting the iPhone alone left the state at `0 / 0 / 1 / 0`; toggling both iPhone settings restored the target device to `1 / 1 / 1 / 0`. This is a device-side repair and does not require signing out of the Apple Account or resetting Mac networking.
+
 ## Build
 
 Requirements:
